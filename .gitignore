@@ -1,0 +1,23 @@
+##ignore this file##
+*.idea
+__pycache__
+*.DS_Store
+*.zip
+*.h5
+*.pth
+*.pt
+*.jpg
+*.ckpt.*
+*.ckpt
+*.config
+*.gz
+*.onnx
+*.xml
+*.bin
+*.mapping
+*.csv
+checkpoint
+data
+VOCdevkit
+*__init__*
+
