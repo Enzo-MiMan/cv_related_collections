@@ -2,7 +2,7 @@ import torch.nn as nn
 from torchsummary import summary
 
 
-class MobileNet(nn.Module):
+class MobileNet_v1(nn.Module):
     def __init__(self):
         super(MobileNet, self).__init__()
 
