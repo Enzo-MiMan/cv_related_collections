@@ -16,6 +16,7 @@ __pycache__
 *.bin
 *.mapping
 *.csv
+*.rp
 checkpoint
 data
 VOCdevkit
