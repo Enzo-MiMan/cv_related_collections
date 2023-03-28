@@ -7,7 +7,6 @@ import torch.optim.lr_scheduler as lr_scheduler
 from torch.utils.tensorboard import SummaryWriter
 
 from models import *
-from build_utils.parse_config import parse_data_cfg
 from build_utils.datasets import *
 from build_utils.utils import *
 from train_utils import train_eval_utils as train_util
@@ -269,8 +268,8 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--epochs', type=int, default=30)
     parser.add_argument('--batch-size', type=int, default=4)
-    parser.add_argument('--cfg', type=str, default='cfg/yolov3-spp.cfg', help="*.cfg path")
-    parser.add_argument('--data', type=str, default='./data/my_data.data', help='*.data path')
+    parser.add_argument('--cfg', type=str, default='cfg/my_yolov3.cfg', help="*.cfg path")
+    parser.add_argument('--data', type=str, default='data/my_data.data', help='*.data path')
     parser.add_argument('--hyp', type=str, default='cfg/hyp.yaml', help='hyperparameters path')
     parser.add_argument('--multi-scale', type=bool, default=True,
                         help='adjust (67%% - 150%%) img_size every 10 batches')
