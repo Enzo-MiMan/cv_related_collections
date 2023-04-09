@@ -39,7 +39,7 @@ class Bottleneck(nn.Module):
 
 
 class ResNet(nn.Module):
-    def __init__(self, bottleneck_num, num_classes=1000, replace_conv=None):
+    def __init__(self, bottleneck_num, num_classes=21, replace_conv=None):
         super(ResNet, self).__init__()
         if replace_conv is None:
             replace_conv = [False, False, False]
