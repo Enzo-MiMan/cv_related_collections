@@ -42,7 +42,7 @@ class ResNet(nn.Module):
     def __init__(self, bottleneck_num, num_classes=1000, replace_conv=None):
         super(ResNet, self).__init__()
         if replace_conv is None:
-            replace_stride_with_dilation = [False, False, False]
+            replace_conv = [False, False, False]
         self.in_channel = 64
         self.dilation_rate = 1
 
