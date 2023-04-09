@@ -8,7 +8,7 @@ from backbone import resnet50
 
 class IntermediateLayerGetter(nn.ModuleDict):
 
-    def __init__(self, model: nn.Module, return_layers: Dict[str, str]) -> None:
+    def __init__(self, model, return_layers):
         if not set(return_layers).issubset([name for name, _ in model.named_children()]):
             raise ValueError("return_layers are not present in model")
         orig_return_layers = return_layers
@@ -77,11 +77,8 @@ class FCNHead(nn.Sequential):
         super(FCNHead, self).__init__(*layers)
 
 
-def fcn_resnet50(aux, num_classes=21, pretrain_backbone=False):
-    backbone = resnet50(replace_stride_with_dilation=[False, True, True])
-    # 'resnet50_imagenet': 'https://download.pytorch.org/models/resnet50-0676ba61.pth'
-    if pretrain_backbone:
-        backbone.load_state_dict(torch.load('resnet50.pth', map_location='cpu'))
+def fcn_resnet50(aux, num_classes=21):
+    backbone = resnet50(replace_conv=[False, True, True])
 
     return_layers = {'layer4': 'out'}
     if aux:
