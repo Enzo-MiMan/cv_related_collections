@@ -4,11 +4,11 @@ from torchsummary import summary
 
 
 class Bottleneck(nn.Module):
-    def __init__(self, in_channel, out_channel, stride=1, downsample=None, dilation=1):
+    def __init__(self, in_channel, out_channel, stride=1, downsample=None, dilation_rate=1):
         super(Bottleneck, self).__init__()
         self.conv1 = nn.Conv2d(in_channels=in_channel, out_channels=out_channel, kernel_size=1, bias=False)
         self.bn1 = nn.BatchNorm2d(out_channel)
-        self.conv2 = nn.Conv2d(in_channels=out_channel, out_channels=out_channel, kernel_size=3, stride=stride, padding=dilation, bias=False, dilation=dilation)
+        self.conv2 = nn.Conv2d(in_channels=out_channel, out_channels=out_channel, kernel_size=3, stride=stride, padding=dilation_rate, bias=False, dilation=dilation_rate)
         self.bn2 = nn.BatchNorm2d(out_channel)
         self.conv3 = nn.Conv2d(in_channels=out_channel, out_channels=out_channel*4, kernel_size=1, bias=False)
         self.bn3 = nn.BatchNorm2d(out_channel*4)
@@ -39,17 +39,15 @@ class Bottleneck(nn.Module):
 
 
 class ResNet(nn.Module):
-    def __init__(self, blocks, num_classes=1000, replace_stride_with_dilation=None):
+    def __init__(self, bottleneck_num, num_classes=1000, replace_conv=None):
         super(ResNet, self).__init__()
-        if replace_stride_with_dilation is None:
+        if replace_conv is None:
             replace_stride_with_dilation = [False, False, False]
         self.in_channel = 64
-        self.dilation = 1
+        self.dilation_rate = 1
 
-        if replace_stride_with_dilation is None:
-            replace_stride_with_dilation = [False, False, False]
-        if len(replace_stride_with_dilation) != 3:
-            raise ValueError("replace_stride_with_dilation should be None " "or a 3-element tuple, got {}".format(replace_stride_with_dilation))
+        if len(replace_conv) != 3:
+            raise ValueError("replace_stride_with_dilation should be None " "or a 3-element tuple, got {}".format(replace_conv))
 
         self.conv1 = nn.Conv2d(in_channels=3, out_channels=64, kernel_size=7, stride=2, padding=3, bias=False)
         self.bn1 = nn.BatchNorm2d(64)
@@ -57,18 +55,18 @@ class ResNet(nn.Module):
         self.maxpool = nn.MaxPool2d(kernel_size=3, stride=2, padding=1)
 
         # 64, 128, 256, 512 分别是 每一层第一个block里第一个 convolution 的 out_channel
-        self.layer1 = self._make_layer(64, blocks[0])
-        self.layer2 = self._make_layer(128, blocks[1], stride=2, dilate=replace_stride_with_dilation[0])
-        self.layer3 = self._make_layer(256, blocks[2], stride=2, dilate=replace_stride_with_dilation[1])
-        self.layer4 = self._make_layer(512, blocks[3], stride=2, dilate=replace_stride_with_dilation[2])
+        self.layer1 = self._make_block(64, bottleneck_num[0])
+        self.layer2 = self._make_block(128, bottleneck_num[1], stride=2, replace_conv=replace_conv[0])
+        self.layer3 = self._make_block(256, bottleneck_num[2], stride=2, replace_conv=replace_conv[1])
+        self.layer4 = self._make_block(512, bottleneck_num[3], stride=2, replace_conv=replace_conv[2])
         self.avgpool = nn.AdaptiveAvgPool2d((1, 1))
         self.fc = nn.Linear(2048, num_classes)
 
-    def _make_layer(self, out_channel, block_num, stride=1,  dilate=False):
+    def _make_block(self, out_channel, block_num, stride=1,  replace_conv=False):
         downsample = None
-        previous_dilation = self.dilation
-        if dilate:
-            self.dilation *= stride
+        previous_dilation_rate = self.dilation_rate
+        if replace_conv:
+            self.dilation_rate *= stride
             stride = 1
 
         # 每个 layer 的第一个 block, downsample 表示跨层连接时是否需要下采样
@@ -79,12 +77,12 @@ class ResNet(nn.Module):
             )
 
         layers = []
-        layers.append(Bottleneck(self.in_channel, out_channel, stride, downsample, previous_dilation))
+        layers.append(Bottleneck(self.in_channel, out_channel, stride, downsample, previous_dilation_rate))
         self.in_channel = out_channel * 4
 
         # 每个 layer 的第二个 block 到最后一个 block
         for _ in range(1, block_num):
-            layers.append(Bottleneck(self.in_channel, out_channel, dilation=self.dilation))
+            layers.append(Bottleneck(self.in_channel, out_channel, dilation_rate=self.dilation_rate))
         return nn.Sequential(*layers)
 
     def forward(self, x):
@@ -110,6 +108,6 @@ def resnet50(**kwargs):
 
 
 if __name__ == '__main__':
-    print(resnet50(replace_stride_with_dilation=[False, True, True]))
+    print(resnet50(replace_conv=[False, True, True]))
     # model = resnet50(replace_stride_with_dilation=[False, True, True])
     # print(summary(model, (3, 224, 224)))

@@ -1,7 +1,5 @@
-
 import os
 import time
-import json
 import torch
 from torchvision import transforms
 import numpy as np
@@ -14,14 +12,12 @@ def main():
     aux = False  # inference time not need aux_classifier
     classes = 20
 
-
     # check files
     weights_path = './save_weights/model_0.pth'
-    img_path = '/Users/enzo/Documents/GitHub/dataset/VOCdevkit/VOC2007/JPEGImages/000041.jpg'
-    palette_path = "./palette.json"
+    img_path = '/Users/enzo/Documents/GitHub/dataset/VOCdevkit/VOC2007/JPEGImages/000017.jpg'
     assert os.path.exists(weights_path), f"weights {weights_path} not found."
     assert os.path.exists(img_path), f"weights {img_path} not found."
-    assert os.path.exists(palette_path), f"weights {palette_path} not found."
+
 
     # get devices
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
