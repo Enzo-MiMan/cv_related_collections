@@ -26,7 +26,6 @@ def create_model(num_classes, pretrain=True):
     return model
 
 
-
 def main(args):
     device = torch.device('cuda' if torch.cuda.is_available() else "cpu")
     batch_size = args.batch_size
@@ -37,10 +36,10 @@ def main(args):
         os.mkdir('./results')
     results_file = "results/result_{}.txt".format(datetime.datetime.now().strftime("%Y%m%d-%H%M%S"))
 
-    # #########################################################99############
-    # ############################## Dataset ##############################
+    # #####################################################################
+    # #################### Dataset & DataLoader ##############################
 
-    root = '/Users/enzo/Documents/GitHub/dataset/VOCdevkit/VOC2012'
+    root = args.data_path
     img_path = os.path.join(root, 'JPEGImages')
     gt_path = os.path.join(root, 'SegmentationClass')
     train_txt = os.path.join(root, 'ImageSets/Segmentation/train.txt')
@@ -147,7 +146,7 @@ def main(args):
 def parse_args():
 
     parser = argparse.ArgumentParser(description="pytorch fcn training")
-    parser.add_argument("--data-path", default="/data/", help="VOCdevkit root")
+    parser.add_argument("--data-path", default="/Users/enzo/Documents/GitHub/dataset/VOCdevkit/VOC2012", help="VOCdevkit root")
     parser.add_argument("--num-classes", default=20, type=int)
     parser.add_argument("--aux", default=False, type=bool, help="auxilier loss")
     parser.add_argument("--device", default="cuda", help="training device")
