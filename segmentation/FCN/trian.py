@@ -50,22 +50,8 @@ def main(args):
     assert os.path.exists(train_txt), 'train_txt not exists'
     assert os.path.exists(val_txt), 'val_txt not exists'
 
-    with open(train_txt, 'r') as f:
-        train_data = [data.strip() for data in f.readlines() if len(data.strip()) > 0]
-        for i in train_data:
-            assert os.path.join(img_path, i + '.jpg'), 'image {} not exist'.format(i + '.jpg')
-            assert os.path.join(gt_path, i + '.png'), 'gt {} not exist'.format(i + '.png')
-        print('train set check done')
-
-    with open(val_txt, 'r') as f:
-        val_data = [data.strip() for data in f.readlines() if len(data.strip()) > 0]
-        for i in val_data:
-            assert os.path.join(img_path, i + '.jpg'), 'image {} not exist'.format(i + '.jpg')
-            assert os.path.join(gt_path, i + '.png'), 'gt {} not exist'.format(i + '.png')
-        print('val set checkdone')
-
-    train_dataset = VOCSegmentation(img_path, gt_path, train_data, train_val='train')
-    val_dataset = VOCSegmentation(img_path, gt_path, val_data, train_val='val')
+    train_dataset = VOCSegmentation(img_path, gt_path, train_txt, train_val='train')
+    val_dataset = VOCSegmentation(img_path, gt_path, val_txt, train_val='val')
 
     # num_workers = min([os.cpu_count(), batch_size if batch_size > 1 else 0, 8])
     train_loader = torch.utils.data.DataLoader(train_dataset,

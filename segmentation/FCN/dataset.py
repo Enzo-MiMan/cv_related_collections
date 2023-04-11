@@ -8,9 +8,12 @@ import matplotlib.pyplot as plt
 
 
 class VOCSegmentation(data.Dataset):
-    def __init__(self, img_path, gt_path, data, train_val='train', base_size=520, crop_size=480, flip_prob=0.5):
+    def __init__(self, img_path, gt_path, txt_file, train_val='train', base_size=520, crop_size=480, flip_prob=0.5):
         super(VOCSegmentation, self).__init__()
+
         if train_val == 'train':
+            with open(txt_file, 'r') as f:
+                data = [data.strip() for data in f.readlines() if len(data.strip()) > 0]
             self.transforms = transforms.Compose([transforms.RandomResize(int(base_size*0.5), int(base_size*2)),
                                                   transforms.RandomHorizontalFlip(flip_prob),
                                                   transforms.RandomCrop(crop_size),
@@ -18,6 +21,8 @@ class VOCSegmentation(data.Dataset):
                                                   transforms.Normalize(mean=(0.485, 0.456, 0.406), std=(0.229, 0.224, 0.225))
                                                   ])
         else:
+            with open(txt_file, 'r') as f:
+                data = [data.strip() for data in f.readlines() if len(data.strip()) > 0]
             self.transforms = transforms.Compose([transforms.RandomResize(base_size, base_size),
                                                   transforms.ToTensor(),
                                                   transforms.Normalize(mean=(0.485, 0.456, 0.406), std=(0.229, 0.224, 0.225))])
@@ -28,7 +33,8 @@ class VOCSegmentation(data.Dataset):
     def __getitem__(self, index):
         img = Image.open(self.img_files[index])
         target = Image.open(self.gt_files[index])
-        target.show()
+        # target.show()
+        # np.array(target).shape
         img, target = self.transforms(img, target)
         return img, target
 
