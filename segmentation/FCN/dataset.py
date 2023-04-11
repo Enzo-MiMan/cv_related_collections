@@ -28,6 +28,7 @@ class VOCSegmentation(data.Dataset):
     def __getitem__(self, index):
         img = Image.open(self.img_files[index])
         target = Image.open(self.gt_files[index])
+        target.show()
         img, target = self.transforms(img, target)
         return img, target
 
