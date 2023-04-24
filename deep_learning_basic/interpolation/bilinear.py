@@ -23,13 +23,13 @@ def bilinear_interpolation(image, out_height, out_width, corner_align=False):
         for out_x in range(out_width):
             if corner_align == True:
                 # 计算当前像素在输入图像中的位置
-                x = out_x * scale_x_corner   # 1 * 0.5 = 0.5
-                y = out_y * scale_y_corner   # 1 * 0.5 = 0.5
+                x = out_x * scale_x_corner
+                y = out_y * scale_y_corner
             else:
-                x = (out_x + 0.5) * scale_x - 0.5   # 1 * 0.5 = -0.2
-                y = (out_y + 0.5) * scale_y - 0.5   # 1 * 0.5 = -0.2
-                x = np.clip(x, 0, width-1)    # 0
-                y = np.clip(y, 0, height-1)   # 0
+                x = (out_x + 0.5) * scale_x - 0.5
+                y = (out_y + 0.5) * scale_y - 0.5
+                x = np.clip(x, 0, width-1)
+                y = np.clip(y, 0, height-1)
 
             # 计算当前像素在输入图像中最近的四个像素的坐标
             x0, y0 = int(x), int(y)
@@ -57,35 +57,25 @@ def bilinear_interpolation(image, out_height, out_width, corner_align=False):
 
 
 # 读取原始图像
-# input_image = Image.open('original_image.jpg')
-# image_array = np.array(input_image)
 image_array = np.arange(0, 9).reshape((3, 3))
-
-# scale_factor = 1.5
-# out_height = int(image_array.shape[0] * scale_factor)
-# out_width = int(image_array.shape[1] * scale_factor)
 
 # ========= 角对齐 =========
 output_array_corner = bilinear_interpolation(image_array, 5, 5, corner_align=True)
 print(output_array_corner)
-# print('*'*20)
+print('*'*20)
 
 # =========  边对齐 =========
-# output_array = bilinear_interpolation(image_array, 5, 5, corner_align=False)
-# print(output_array)
-# print('*'*20)
-
-# output_image = Image.fromarray(output_array.astype(np.uint8))
-# output_image.show()
-
+output_array = bilinear_interpolation(image_array, 5, 5, corner_align=False)
+print(output_array)
+print('*'*20)
 
 # ========= 用 torch.nn.functional 实现双线性插值 ================
 
-# image = torch.as_tensor(image_array, dtype=torch.float32).unsqueeze(0).unsqueeze(0)
-# result_corner = F.interpolate(image, size=(5, 5), mode='bilinear', align_corners=True)
-# print(result_corner)
-#
-# image = torch.as_tensor(image_array, dtype=torch.float32).unsqueeze(0).unsqueeze(0)
-# result = F.interpolate(image, size=(5, 5), mode='bilinear', align_corners=False)
-# print(result)
+image = torch.as_tensor(image_array, dtype=torch.float32).unsqueeze(0).unsqueeze(0)
+result_corner = F.interpolate(image, size=(5, 5), mode='bilinear', align_corners=True)
+print(result_corner)
+
+image = torch.as_tensor(image_array, dtype=torch.float32).unsqueeze(0).unsqueeze(0)
+result = F.interpolate(image, size=(5, 5), mode='bilinear', align_corners=False)
+print(result)
 
