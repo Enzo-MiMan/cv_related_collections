@@ -147,7 +147,7 @@ class Resize(object):
     def __call__(self, image, bboxes, labels):
         w, h = image.size
         bboxes /= torch.tensor([w, h, w, h]).expand_as(bboxes)
-        image = F.resize(image, self.image_size)
+        image = F.resize(image, (self.image_size, self.image_size))
         return image, bboxes, labels
 
 

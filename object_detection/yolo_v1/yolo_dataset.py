@@ -70,18 +70,21 @@ class yolo_Dataset(data.Dataset):
 
 
     def encoder(self, bboxes, labels):
-        grid_num = 7
+        grid_num = 14
         target = torch.zeros((grid_num, grid_num, 30))
         cell_size = 1./grid_num
         wh = bboxes[:, 2:] - bboxes[:, :2]
-        cxcy = (bboxes[:,2:] + bboxes[:,:2]) / 2
+        cxcy = (bboxes[:, 2:] + bboxes[:, :2]) / 2
         for i in range(cxcy.size()[0]):
+            # 填写object置信度信息 和 class类别信息
             cxcy_sample = cxcy[i]
-            ij = (cxcy_sample / cell_size).ceil() - 1  #
+            ij = (cxcy_sample / cell_size).floor()  #
             target[int(ij[1]), int(ij[0]), 4] = 1
             target[int(ij[1]), int(ij[0]), 9] = 1
             target[int(ij[1]), int(ij[0]), int(labels[i]) + 9] = 1
-            xy = ij * cell_size  # 匹配到的网格的左上角相对坐标
+
+            # 填写 bbox坐标信息
+            xy = ij * cell_size  # grid cell 左上角点 在图像中的相对位置
             delta_xy = (cxcy_sample - xy) / cell_size
             target[int(ij[1]), int(ij[0]), 2:4] = wh[i]
             target[int(ij[1]), int(ij[0]), :2] = delta_xy
