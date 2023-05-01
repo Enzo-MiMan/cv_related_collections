@@ -158,7 +158,7 @@ class ToTensor(object):
         return image, bbox, labels
 
 
-class Normalize(object):
+class Normalization(object):
     """对图像标准化处理,该方法应放在ToTensor后"""
     def __init__(self, mean, std):
         self.normalize = transforms.Normalize(mean=mean, std=std)

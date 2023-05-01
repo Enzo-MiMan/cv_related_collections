@@ -1,7 +1,9 @@
+import sys
+sys.path.append('../input')
 import os
 import torch
 import torch.utils.data as data
-import transforms
+from yolov1.yolo_v1_kaggle import transforms
 from PIL import Image
 
 
@@ -49,12 +51,12 @@ class yolo_Dataset(data.Dataset):
                                                 transforms.RandomCrop(),
                                                 transforms.Resize(self.image_size),
                                                 transforms.ToTensor(),
-                                                transforms.Normalize(mean=[0.485, 0.456, 0.406],
+                                                transforms.Normalization(mean=[0.485, 0.456, 0.406],
                                                                          std=[0.229, 0.224, 0.225])])
         else:
             self.my_trans = transforms.Compose([transforms.Resize(self.image_size),
                                                 transforms.ToTensor(),
-                                                transforms.Normalize(mean=[0.485, 0.456, 0.406],
+                                                transforms.Normalization(mean=[0.485, 0.456, 0.406],
                                                                          std=[0.229, 0.224, 0.225])])
 
 

@@ -1,7 +1,7 @@
 import torch.nn as nn
 import math
 import torch
-from torchsummary import summary
+# from torchsummary import summary
 import torch.utils.model_zoo as model_zoo
 import torch.nn.functional as F
 
@@ -195,7 +195,7 @@ class ResNet(nn.Module):
         # x = self.fc(x)
         x = self.conv_end(x)
         x = self.bn_end(x)
-        x = torch.sigmoid(x)  # 归一化到0-1
+        x = F.sigmoid(x)  # 归一化到0-1
         # x = x.view(-1,7,7,30)
         x = x.permute(0, 2, 3, 1)  # (-1,7,7,30)
 

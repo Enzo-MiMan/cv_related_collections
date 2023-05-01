@@ -1,25 +1,29 @@
-import os
-import torch
-import numpy as np
-from models.resnet import resnet50
+import sys
+
+sys.path.append('../input')
+print(sys.path)
+
 from torchvision import models
-from torchsummary import summary
 from torch.utils.data import DataLoader
-from yolo_loss import yoloLoss
-from yolo_dataset import yolo_Dataset
+from yolov1.yolo_v1_kaggle.yolo_loss import yoloLoss
+from yolov1.yolo_v1_kaggle.yolo_dataset import yolo_Dataset
+from yolov1.yolo_v1_kaggle.models.resnet import resnet50
+import torch
+import os
+import numpy as np
 
 
 def main(best_model=False):
-    global pretrained_layer_name
-    data_root = '/Users/enzo/Documents/GitHub/dataset/VOCdevkit/VOC2012'
+    data_root = '/kaggle/input/pascal-voc-2012/VOC2012'
     learning_rate = 0.001
     num_epochs = 50
     best_val_loss = np.inf
     if device == 'cpu':
         batch_size = 4
+    elif best_model:
+        batch_size = 8
     else:
         batch_size = 64
-
 
     # ============================= create module =============================
     net = resnet50()
@@ -45,8 +49,8 @@ def main(best_model=False):
 
     # ============================= dataset & dataloader =============================
     image_path = os.path.join(data_root, "JPEGImages")
-    train_txt = './my_yolo_dataset/train_label_bbox.txt'
-    val_txt = './my_yolo_dataset/val_label_bbox.txt'
+    train_txt = '/kaggle/input/yolov1/yolo_v1_kaggle/my_yolo_dataset/train_label_bbox.txt'
+    val_txt = '/kaggle/input/yolov1/yolo_v1_kaggle/my_yolo_dataset/val_label_bbox.txt'
     train_dataset = yolo_Dataset(image_path, train_txt, train=True)
     val_dataset = yolo_Dataset(image_path, val_txt, train=False)
 
@@ -54,12 +58,10 @@ def main(best_model=False):
     train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True, num_workers=nw)
     val_loader = DataLoader(val_dataset, batch_size=batch_size, shuffle=False, num_workers=nw)
 
-
     print('the dataset has %d images' % (len(train_dataset)))
     print('the batch_size is %d' % (batch_size))
 
     # ============================= optimizer & loss function =============================
-
     params = []
 
     if not best_model:
@@ -67,15 +69,28 @@ def main(best_model=False):
             if name in pretrained_layer_name:
                 param.requires_grad = False
         params = [p for p in net.parameters() if p.requires_grad]
-
     optimizer = torch.optim.SGD(params, lr=learning_rate, momentum=0.9, weight_decay=5e-4)
-    criterion = yoloLoss(14, 2, 5, 0.5)
 
+    criterion = yoloLoss(14, 2, 5, 0.5)
 
     # ============================= train & validation =============================
 
     for epoch in range(num_epochs):
-        print('epoch : ', epoch)
+
+        net.train()
+        if epoch == 1:
+            learning_rate = 0.0005
+        if epoch == 2:
+            learning_rate = 0.00075
+        if epoch == 3:
+            learning_rate = 0.001
+        if epoch == 30:
+            learning_rate = 0.0001
+        if epoch == 40:
+            learning_rate = 0.00001
+
+        for param_group in optimizer.param_groups:
+            param_group['lr'] = learning_rate
 
         # === train ===
         net.train()
@@ -84,13 +99,13 @@ def main(best_model=False):
             image, target = image.to(device), target.to(device)
             pred = net(image)
             loss = criterion(pred, target)
-            total_loss += loss.data[0]
+            # total_loss += loss.item()
 
             optimizer.zero_grad()
             loss.backward()
             optimizer.step()
-            if epoch %5 == 0:
-                print("epoch : f{epoch}, loss : {loss}")
+            if i % 5 == 0:
+                print("epoch : {}, step : {}, loss : {}".format(epoch, i, loss))
 
         # === valid ===
         validation_loss = 0.0
@@ -99,7 +114,9 @@ def main(best_model=False):
             image, target = image.to(device), target.to(device)
             pred = net(image)
             loss = criterion(pred, target)
-            validation_loss += loss.data[0]
+            validation_loss += loss.item()
+            if i % 5 == 0:
+                print("epoch : {}, step : {}, loss : {}".format(epoch, i, loss))
         validation_loss /= len(val_loader)
 
         if best_val_loss > validation_loss:
