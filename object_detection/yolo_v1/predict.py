@@ -5,7 +5,7 @@ import torchvision.transforms as transforms
 import cv2
 import numpy as np
 
-VOC_CLASSES = (    # always index 0
+VOC_CLASSES = ( # always index 0
     'aeroplane', 'bicycle', 'bird', 'boat',
     'bottle', 'bus', 'car', 'cat', 'chair',
     'cow', 'diningtable', 'dog', 'horse',
@@ -34,14 +34,11 @@ Color = [[0, 0, 0],
          [128, 192, 0],
          [0, 64, 128]]
 
+
 def decoder(pred):
-    '''
-    pred (tensor) 1x7x7x30
-    return (tensor) box[[x1,y1,x2,y2]] label[...]
-    '''
     grid_num = 14
     boxes=[]
-    cls_indexs=[]
+    cls_indexes=[]
     probs = []
     cell_size = 1./grid_num
     pred = pred.data
@@ -71,18 +68,19 @@ def decoder(pred):
                     max_prob, cls_index = torch.max(pred[i,j,10:],0)
                     if float((contain_prob*max_prob)[0]) > 0.1:
                         boxes.append(box_xy.view(1,4))
-                        cls_indexs.append(torch.tensor([cls_index]))
+                        cls_indexes.append(torch.tensor([cls_index]))
                         probs.append(contain_prob*max_prob)
-    if len(boxes) ==0:
+
+    if len(boxes) == 0:
         boxes = torch.zeros((1,4))
         probs = torch.zeros(1)
-        cls_indexs = torch.zeros(1)
+        cls_indexes = torch.zeros(1)
     else:
         boxes = torch.cat(boxes,0) #(n,4)
         probs = torch.cat(probs,0) #(n,)
-        cls_indexs = torch.cat(cls_indexs,0) #(n,)
+        cls_indexes = torch.cat(cls_indexes,0) #(n,)
     keep = nms(boxes,probs)
-    return boxes[keep], cls_indexs[keep], probs[keep]
+    return boxes[keep], cls_indexes[keep], probs[keep]
 
 def nms(bboxes,scores,threshold=0.5):
     '''
