@@ -1,4 +1,3 @@
-
 import os
 import sys
 import os.path
@@ -67,8 +66,9 @@ class yoloDataset(data.Dataset):
             img = self.RandomBrightness(img)
             img = self.RandomHue(img)
             img = self.RandomSaturation(img)
-            img,boxes,labels = self.randomShift(img,boxes,labels)
-            img,boxes,labels = self.randomCrop(img,boxes,labels)
+            img,boxes,labels = self.randomShift(img, boxes, labels)
+            img,boxes,labels = self.randomCrop(img, boxes, labels)
+
         # #debug
         # box_show = boxes.numpy().reshape(-1)
         # print(box_show)
@@ -81,6 +81,7 @@ class yoloDataset(data.Dataset):
         # plt.imshow(img_show)
         # plt.show()
         # #debug
+
         h,w,_ = img.shape
         boxes /= torch.Tensor([w,h,w,h]).expand_as(boxes)
         img = self.BGR2RGB(img) #because pytorch pretrained model use RGB
@@ -91,6 +92,7 @@ class yoloDataset(data.Dataset):
             img = t(img)
 
         return img,target
+
     def __len__(self):
         return self.num_samples
 
