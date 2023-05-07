@@ -4,8 +4,7 @@ import torch.utils.model_zoo as model_zoo
 import torch.nn.functional as F
 import torch
 
-__all__ = ['ResNet', 'resnet18', 'resnet34', 'resnet50', 'resnet101',
-           'resnet152']
+__all__ = ['ResNet', 'resnet18', 'resnet34', 'resnet50', 'resnet101', 'resnet152']
 
 
 model_urls = {
@@ -19,8 +18,8 @@ model_urls = {
 
 def conv3x3(in_planes, out_planes, stride=1):
     "3x3 convolution with padding"
-    return nn.Conv2d(in_planes, out_planes, kernel_size=3, stride=stride,
-                     padding=1, bias=False)
+    return nn.Conv2d(in_planes, out_planes, kernel_size=3, stride=stride, padding=1, bias=False)
+
 
 
 class BasicBlock(nn.Module):
@@ -192,7 +191,7 @@ class ResNet(nn.Module):
         # x = self.fc(x)
         x = self.conv_end(x)
         x = self.bn_end(x)
-        x = torch.sigmoid(x) #归一化到0-1
+        x = torch.sigmoid(x)   # 归一化到0-1
         # x = x.view(-1,7,7,30)
         x = x.permute(0,2,3,1) #(-1,7,7,30)
 

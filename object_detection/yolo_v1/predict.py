@@ -46,8 +46,8 @@ def decoder(pred):
     contain1 = pred[:,:,4].unsqueeze(2)
     contain2 = pred[:,:,9].unsqueeze(2)
     contain = torch.cat((contain1,contain2),2)
-    mask1 = contain > 0.1 #大于阈值
-    mask2 = (contain==contain.max()) #we always select the best contain_prob what ever it>0.9
+    mask1 = contain > 0.1   # 大于阈值
+    mask2 = (contain == contain.max())   # we always select the best contain_prob what ever it>0.9
     mask = mask1 + mask2
     # min_score,min_index = torch.min(contain,2) #每个cell只选最大概率的那个预测框
     for i in range(grid_num):
@@ -55,8 +55,8 @@ def decoder(pred):
             for b in range(2):
                 # index = min_index[i,j]
                 # mask[i,j,index] = 0
-                if mask[i,j,b] == True:
-                    #print(i,j,b)
+                if mask[i, j, b] == True:
+                    # print(i, j, b)
                     box = pred[i, j, b*5:b*5+4]
                     contain_prob = torch.FloatTensor([pred[i,j,b*5+4]])
                     xy = torch.FloatTensor([j,i])*cell_size #cell左上角  up left of cell
@@ -76,9 +76,9 @@ def decoder(pred):
         probs = torch.zeros(1)
         cls_indexes = torch.zeros(1)
     else:
-        boxes = torch.cat(boxes,0) #(n,4)
-        probs = torch.cat(probs,0) #(n,)
-        cls_indexes = torch.cat(cls_indexes,0) #(n,)
+        boxes = torch.cat(boxes,0)   # (n,4)
+        probs = torch.cat(probs,0)   # (n,)
+        cls_indexes = torch.cat(cls_indexes,0)   # (n,)
     keep = nms(boxes,probs)
     return boxes[keep], cls_indexes[keep], probs[keep]
 
@@ -87,19 +87,19 @@ def nms(bboxes,scores,threshold=0.5):
     bboxes(tensor) [N,4]
     scores(tensor) [N,]
     '''
-    x1 = bboxes[:,0]
-    y1 = bboxes[:,1]
-    x2 = bboxes[:,2]
-    y2 = bboxes[:,3]
+    x1 = bboxes[:, 0]
+    y1 = bboxes[:, 1]
+    x2 = bboxes[:, 2]
+    y2 = bboxes[:, 3]
     areas = (x2-x1) * (y2-y1)
 
-    _,order = scores.sort(0,descending=True)
+    _,order = scores.sort(0, descending=True)
     keep = []
     while order.numel() > 0:
         if order.numel() == 1:
             i = order.item()
         else:
-            i = order[0]
+            i = order[0].item()
         keep.append(i)
 
         if order.numel() == 1:
