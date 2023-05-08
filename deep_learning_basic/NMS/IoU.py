@@ -24,6 +24,6 @@ def box_iou(boxes1, boxes2):
 
 boxes1 = torch.tensor([10, 10, 30, 30])
 boxes2 = torch.tensor([20, 20, 40, 40])
-iou1 = box_inter_union(boxes1, boxes2)
+iou1 = box_iou(boxes1, boxes2)
 print(iou1)
 
