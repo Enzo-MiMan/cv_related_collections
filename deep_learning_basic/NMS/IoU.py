@@ -1,7 +1,7 @@
 import torch
 
 
-def box_inter_union(boxes1, boxes2):
+def box_iou(boxes1, boxes2):
     # bbox1 和 bbox2 的面积
     area1 = (boxes1[2] - boxes1[0]) * (boxes1[3] - boxes1[1])
     area2 = (boxes2[2] - boxes2[0]) * (boxes2[3] - boxes2[1])
