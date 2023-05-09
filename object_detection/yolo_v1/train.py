@@ -1,6 +1,6 @@
 import sys
 sys.path.append('../input')
-print(sys.path)
+# print(sys.path)
 
 import os
 import torch
