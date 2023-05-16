@@ -28,7 +28,7 @@ if __name__ == '__main__':
     scale_y = height / out_height
     scale_x = width / out_width
 
-    image = F.pad(image, (2, 2, 2, 2), mode='replicate')
+    image_pad = F.pad(image, (2, 2, 2, 2), mode='replicate')
 
     # 创建输出图像
     output_image = np.zeros((out_height, out_width), dtype=np.float32)
@@ -51,16 +51,16 @@ if __name__ == '__main__':
             # calculate index
             index_x = round(x+0.5)
             index_y = round(y+0.5)
-            source = image[:, :, index_y-2:index_y+2, index_x-2:index_x+2].squeeze()
+            source = image_pad[:, :, index_y-2:index_y+2, index_x-2:index_x+2].squeeze()
 
             output_image[out_y, out_x] = torch.multiply(torch.multiply(source, weight_x), weight_y).sum()
-
-
     print(output_image)
+
 
     # =======================================================================
 
     result = F.interpolate(image, (out_height, out_width), mode='bicubic', align_corners=False)
     print(result)
+
 
 
