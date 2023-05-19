@@ -4,17 +4,19 @@ import matplotlib.pyplot as plt
 
 
 class Self_Attention(nn.Module):
-    def __init__(self, dim):
+    def __init__(self, dim, dk, dv):
         super(Self_Attention, self).__init__()
-        self.scale = dim ** -0.5
-        self.qkv = nn.Linear(dim, dim * 3)
+        self.scale = dk ** -0.5
+        self.q = nn.Linear(dim, dk)
+        self.k = nn.Linear(dim, dk)
+        self.v = nn.Linear(dim, dv)
 
 
     def forward(self, x):
         B, N, C = x.shape
-        qkv = self.qkv(x).reshape(B, N, 3, -1).permute(2, 0, 1, 3)
-
-        q, k, v = qkv[0], qkv[1], qkv[2]
+        q = self.q(x)
+        k = self.k(x)
+        v = self.v(x)
 
         attn = (q @ k.transpose(-2, -1)) * self.scale
         attn = attn.softmax(dim=-1)
@@ -22,7 +24,8 @@ class Self_Attention(nn.Module):
         x = attn @ v
         return x
 
-att = Self_Attention(dim=2)
+
+att = Self_Attention(dim=2, dk=2, dv=3)
 x = torch.rand((1, 4, 2))
 output = att(x)
 
