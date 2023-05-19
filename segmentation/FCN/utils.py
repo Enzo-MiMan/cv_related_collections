@@ -25,13 +25,12 @@ def evaluate(model, data_loader, device, num_classes):
             predict = predict['out']
 
             conf_mat.update(target.flatten(), predict.argmax(1).flatten())
-            break
 
         conf_mat.reduce_from_all_processes()
     return conf_mat
 
 
-def train_one_epoch(model, optimizer, data_loader, device, epoch, lr_scheduler, print_freq=10, scaler=None):
+def train_one_epoch(model, optimizer, data_loader, device, lr_scheduler, scaler=None):
     model.train()
 
     for image, target in data_loader:
@@ -44,13 +43,12 @@ def train_one_epoch(model, optimizer, data_loader, device, epoch, lr_scheduler, 
         if scaler is not None:
             scaler.scale(loss).backward()
             scaler.step(optimizer)
-            scaler.updata()
+            scaler.update()
         else:
             loss.backward()
             optimizer.step()
 
         lr_scheduler.step()
-        break
 
     return loss, optimizer.param_groups[0]["lr"]
 
@@ -107,8 +105,8 @@ class ConfusionMatrix(object):
         # 计算每个类别的准确率
         acc = torch.diag(h) / h.sum(1)
         # 计算每个类别预测与真实目标的iou
-        iu = torch.diag(h) / (h.sum(1) + h.sum(0) - torch.diag(h))
-        return acc_global, acc, iu
+        iou = torch.diag(h) / (h.sum(1) + h.sum(0) - torch.diag(h))
+        return acc_global, acc, iou
 
     def reduce_from_all_processes(self):
         '''
@@ -138,5 +136,4 @@ class ConfusionMatrix(object):
                 ['{:.1f}'.format(i) for i in (acc * 100).tolist()],
                 ['{:.1f}'.format(i) for i in (iu * 100).tolist()],
                 iu.mean().item() * 100)
-
 

@@ -13,8 +13,8 @@ def main():
     classes = 20
 
     # check files
-    weights_path = './save_weights/model_0.pth'
-    img_path = '/Users/enzo/Documents/GitHub/dataset/VOCdevkit/VOC2007/JPEGImages/000017.jpg'
+    weights_path = './save_weights/model.pth'
+    img_path = 'image.jpg'
     assert os.path.exists(weights_path), f"weights {weights_path} not found."
     assert os.path.exists(img_path), f"weights {img_path} not found."
 
@@ -58,7 +58,7 @@ def main():
         prediction = output['out'].argmax(1).squeeze(0)
         prediction = prediction.to("cpu").numpy().astype(np.uint8)
         # mask = Image.fromarray(prediction)
-        # mask.save("test_result.png")
+        # mask.save("predict_result.png")
 
     plt.subplot(121)
     plt.imshow(np.array(original_img))

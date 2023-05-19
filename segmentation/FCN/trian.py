@@ -29,14 +29,14 @@ def create_model(num_classes, pretrain=True):
 def main(args):
     device = torch.device('cuda' if torch.cuda.is_available() else "cpu")
     batch_size = args.batch_size
-    num_classes = args.num_classes +1
+    num_classes = args.num_classes + 1
 
     if os.path.exists('./results'):
         shutil.rmtree('./results')
         os.mkdir('./results')
     results_file = "results/result_{}.txt".format(datetime.datetime.now().strftime("%Y%m%d-%H%M%S"))
 
-    # #####################################################################
+
     # #################### Dataset & DataLoader ##############################
 
     root = args.data_path
@@ -56,20 +56,18 @@ def main(args):
     # num_workers = min([os.cpu_count(), batch_size if batch_size > 1 else 0, 8])
     train_loader = torch.utils.data.DataLoader(train_dataset,
                                                batch_size=batch_size,
-                                               num_workers=1,
+                                               # num_workers=1,
                                                shuffle=True,
                                                pin_memory=True,
-                                               collate_fn=train_dataset.collate_fn
-                                               )
+                                               collate_fn=train_dataset.collate_fn)
 
     val_loader = torch.utils.data.DataLoader(val_dataset,
-                                             batch_size=1,
-                                             num_workers=1,
+                                             batch_size=2,
+                                             # num_workers=1,
                                              pin_memory=True,
-                                             collate_fn=val_dataset.collate_fn
-                                             )
+                                             collate_fn=val_dataset.collate_fn)
 
-    # ############################################################################################
+
     # ############################## Module & optimizer & scheduler ##############################
 
     model = create_model(num_classes=num_classes)
@@ -83,6 +81,7 @@ def main(args):
     if args.aux:
         params = [p for p in model.aux_classifier.parameters() if p.requires_grad]
         params_to_optimize.append({'params': params, 'lr': args.lr*10})
+
     optimizer = torch.optim.SGD(params_to_optimize, lr=args.lr, momentum=args.momentum, weight_decay=args.weight_decay)
 
     scaler = torch.cuda.amp.GradScaler() if args.amp else None
@@ -98,12 +97,12 @@ def main(args):
         if args.amp:
             scaler.load_state_dict(checkpoint["scaler"])
 
-    # ###################################################
+
     # ###################### Train ######################
     start_time = time.time()
     for epoch in range(args.start_epoch, args.epochs):
-        mean_loss, lr = train_one_epoch(model, optimizer, train_loader, device, epoch,
-                             lr_scheduler=lr_scheduler, print_freq=args.print_freq, scaler=scaler)
+        mean_loss, lr = train_one_epoch(model, optimizer, train_loader, device,
+                                        lr_scheduler=lr_scheduler, scaler=scaler)
 
         conf_mat = evaluate(model, val_loader, device=device, num_classes=num_classes)
         val_info = str(conf_mat)
@@ -121,8 +120,7 @@ def main(args):
                      "args": args}
         if args.amp:
             save_file["scaler"] = scaler.state_dict()
-        torch.save(save_file, "save_weights/model_{}.pth".format(epoch))
-        break
+        torch.save(save_file, "save_weights/model.pth")
 
     total_time = time.time() - start_time
     total_time_str = str(datetime.timedelta(seconds=int(total_time)))
