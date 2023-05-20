@@ -13,7 +13,6 @@ class Self_Attention(nn.Module):
 
 
     def forward(self, x):
-        B, N, C = x.shape
         q = self.q(x)
         k = self.k(x)
         v = self.v(x)

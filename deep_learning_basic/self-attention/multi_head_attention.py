@@ -1,31 +1,53 @@
-import torch.nn as nn
+from math import sqrt
 import torch
+import torch.nn as nn
 
 
-class AdditiveAttention(nn.Module):
-    def __init__(self, query_size, key_size, num_hiddens, dropout):
-        super(AdditiveAttention, self).__init__()
-        self.w_k = nn.Linear(key_size, num_hiddens, bias=False)
-        self.w_q = nn.Linear(query_size, num_hiddens, bias=False)
-        self.w_v = nn.Linear(num_hiddens, 1, bias=False)
-        self.dropout = nn.Dropout(dropout)
+class MultiHeadSelfAttention(nn.Module):
 
-    def forward(self, queries, keys, values, valid_lens):
-        queries, keys = self.w_q(queries), self.w_k(keys)
-        features = queries.unsqueeze(2) + keys.unsqueeze(1)
-        features = torch.tanh(features)
-        return features
+    def __init__(self, dim_in, d_model, num_heads=3):
+        super(MultiHeadSelfAttention, self).__init__()
+
+        self.dim_in = dim_in
+        self.d_model = d_model
+        self.num_heads = num_heads
+
+        # 维度必须能被num_head 整除
+        assert d_model % num_heads == 0, "d_model must be multiple of num_heads"
+
+        # 定义线性变换矩阵
+        self.linear_q = nn.Linear(dim_in, d_model)
+        self.linear_k = nn.Linear(dim_in, d_model)
+        self.linear_v = nn.Linear(dim_in, d_model)
+        self.scale = 1 / sqrt(d_model // num_heads)
+
+        # 最后的线性层
+        self.fc = nn.Linear(d_model, d_model)
+
+    def forward(self, x):
+        # x: tensor of shape (batch, n, dim_in)
+        batch, n, dim_in = x.shape
+        assert dim_in == self.dim_in
+
+        nh = self.num_heads
+        dk = self.d_model // nh  # dim_k of each head
+
+        q = self.linear_q(x).reshape(batch, n, nh, dk).transpose(1, 2)  # (batch, nh, n, dk)
+        k = self.linear_k(x).reshape(batch, n, nh, dk).transpose(1, 2)  # (batch, nh, n, dk)
+        v = self.linear_v(x).reshape(batch, n, nh, dk).transpose(1, 2)  # (batch, nh, n, dv)
+
+        dist = torch.matmul(q, k.transpose(2, 3)) * self.scale  # batch, nh, n, n
+        dist = torch.softmax(dist, dim=-1)  # batch, nh, n, n
+
+        att = torch.matmul(dist, v)  # batch, nh, n, dv
+        att = att.transpose(1, 2).reshape(batch, n, self.d_model)  # batch, n, dim_v
+
+        # 最后通过一个线性层进行变换
+        output = self.fc(att)
+
+        return output
 
 
-att = AdditiveAttention(3, 6, 5, False)
-queries = torch.rand((1, 4, 3))
-keys = torch.rand((1, 4, 6))
-values = torch.rand((1, 4, 5))
-out = att(queries, keys, values, None)
-
-
-
-
-
-
-
+x = torch.rand((1, 4, 2))
+multi_head_att = MultiHeadSelfAttention(x.shape[2], 6, 3)  # (6, 3)
+output = multi_head_att(x)
