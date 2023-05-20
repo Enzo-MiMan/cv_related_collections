@@ -34,7 +34,7 @@ class MultiHeadSelfAttention(nn.Module):
 
         q = self.linear_q(x).reshape(batch, n, nh, dk).transpose(1, 2)  # (batch, nh, n, dk)
         k = self.linear_k(x).reshape(batch, n, nh, dk).transpose(1, 2)  # (batch, nh, n, dk)
-        v = self.linear_v(x).reshape(batch, n, nh, dk).transpose(1, 2)  # (batch, nh, n, dv)
+        v = self.linear_v(x).reshape(batch, n, nh, dk).transpose(1, 2)  # (batch, nh, n, dk)
 
         dist = torch.matmul(q, k.transpose(2, 3)) * self.scale  # batch, nh, n, n
         dist = torch.softmax(dist, dim=-1)  # batch, nh, n, n
