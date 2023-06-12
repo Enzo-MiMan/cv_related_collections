@@ -115,12 +115,11 @@ def rescale_bboxes(out_bbox, size):
 
 
 def detect(im, model, transform):
-    # mean-std normalize the input image (batch-size: 1)
+    # mean-std normalize the input image (batch size=1)
     img = transform(im).unsqueeze(0)
 
-    # model 仅支持高宽比范围为： 0.5 ～ 2
-    # 如果你想 使用 高宽比超过这个范围的图像，
-    # 你得重新 rescale 你的图像，并且使得最大边长不超过 1333， 这样才能取得较好的检测效果
+    # model 仅支持高宽比范围为： 0.5 ～ 2, 如果你想 使用 高宽比超过这个范围的图像，你得重新 rescale 你的图像
+    # 并且使得最大边长不超过 1333， 这样才能取得较好的检测效果
     assert img.shape[-2] <= 1600 and img.shape[-1] <= 1600, 'demo model only supports images up to 1600 pixels on each side'
 
     # propagate through the model
@@ -168,7 +167,7 @@ if __name__ == '__main__':
         T.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
     ])
 
-    im = Image.open('image2.jpeg').convert('RGB')
+    im = Image.open('image2.png').convert('RGB')
     scores, boxes = detect(im, detr, transform)
     plot_results(im, scores, boxes)
 
