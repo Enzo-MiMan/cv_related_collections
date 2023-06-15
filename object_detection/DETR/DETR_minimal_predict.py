@@ -167,7 +167,7 @@ if __name__ == '__main__':
         T.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
     ])
 
-    im = Image.open('image2.png').convert('RGB')
+    im = Image.open('images/image2.png').convert('RGB')
     scores, boxes = detect(im, detr, transform)
     plot_results(im, scores, boxes)
 
