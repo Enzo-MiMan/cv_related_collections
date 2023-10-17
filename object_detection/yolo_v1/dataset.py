@@ -23,9 +23,10 @@ class yoloDataset(data.Dataset):
         self.fnames = []
         self.boxes = []
         self.labels = []
-        self.mean = (123,117,104)#RGB
+        self.mean = (123,117,104)  # RGB
 
         if isinstance(list_file, list):
+            # 将多个文件中的内容拼接到一起，尤其是拼接 voc07 和 voc12 的数据
             # Cat multiple list files together.
             # This is especially useful for voc07/voc12 combination.
             tmp_file = '/tmp/listfile.txt'
@@ -33,7 +34,7 @@ class yoloDataset(data.Dataset):
             list_file = tmp_file
 
         with open(list_file) as f:
-            lines  = f.readlines()
+            lines = f.readlines()
 
         for line in lines:
             splited = line.strip().split()
@@ -87,8 +88,8 @@ class yoloDataset(data.Dataset):
         boxes /= torch.Tensor([w,h,w,h]).expand_as(boxes)
         img = self.BGR2RGB(img) #because pytorch pretrained model use RGB
         img = self.subMean(img,self.mean) #减去均值
-        img = cv2.resize(img,(self.image_size,self.image_size))
-        target = self.encoder(boxes,labels)# 7x7x30
+        img = cv2.resize(img,(self.image_size, self.image_size))
+        target = self.encoder(boxes,labels)  # 7x7x30
         for t in self.transform:
             img = t(img)
 
@@ -242,8 +243,6 @@ class yoloDataset(data.Dataset):
             img_croped = bgr[y:y+h,x:x+w,:]
             return img_croped,boxes_in,labels_in
         return bgr,boxes,labels
-
-
 
 
     def subMean(self,bgr,mean):

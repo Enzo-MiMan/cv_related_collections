@@ -1,7 +1,3 @@
-import sys
-sys.path.append('../input')
-# print(sys.path)
-
 import os
 import torch
 import torch.nn as nn
@@ -29,25 +25,27 @@ def main():
     else:
         net = vgg16_bn()
 
-    # net.classifier = nn.Sequential(
-    #             nn.Linear(512 * 7 * 7, 4096),
-    #             nn.ReLU(True),
-    #             nn.Dropout(),
-    #             #nn.Linear(4096, 4096),
-    #             #nn.ReLU(True),
-    #             #nn.Dropout(),
-    #             nn.Linear(4096, 1470),
-    #         )
-    #net = resnet18(pretrained=True)
-    #net.fc = nn.Linear(512,1470)
-    # initial Linear
-    # for m in net.modules():
-    #     if isinstance(m, nn.Linear):
-    #         m.weight.data.normal_(0, 0.01)
-    #         m.bias.data.zero_()
+    # 在 backbone 后面添加 classifier
+    net.classifier = nn.Sequential(
+                nn.Linear(512 * 7 * 7, 4096),
+                nn.ReLU(True),
+                nn.Dropout(),
+                nn.Linear(4096, 4096),
+                nn.ReLU(True),
+                nn.Dropout(),
+                nn.Linear(4096, 1470),
+            )
 
+    # 给新添加的层做参数初始化
+    for m in net.modules():
+        if isinstance(m, nn.Linear):
+            m.weight.data.normal_(0, 0.01)
+            m.bias.data.zero_()
 
-    #net.load_state_dict(torch.load('yolo.pth'))
+    # 加载模型参数，继续训练
+    # net.load_state_dict(torch.load('best.pth'))
+
+    # 加载预训练好的 backbone 的参数
     print('load pre-trined model')
     if use_resnet:
         resnet = models.resnet50(weights=models.ResNet50_Weights.DEFAULT)
@@ -65,13 +63,10 @@ def main():
             if k in dd.keys() and k.startswith('features'):
                 dd[k] = new_state_dict[k]
         net.load_state_dict(dd)
-    # if False:
-    #     net.load_state_dict(torch.load('best.pth'))
 
-    criterion = yoloLoss(7,2,5,0.5)
+    criterion = yoloLoss(7, 2, 5, 0.5)
 
 
-    net.train()
     # different learning rate
     params=[]
     params_dict = dict(net.named_parameters())
@@ -80,21 +75,21 @@ def main():
             params += [{'params':[value],'lr':learning_rate*1}]
         else:
             params += [{'params':[value],'lr':learning_rate}]
+
     optimizer = torch.optim.SGD(params, lr=learning_rate, momentum=0.9, weight_decay=5e-4)
     # optimizer = torch.optim.Adam(net.parameters(),lr=learning_rate,weight_decay=1e-4)
 
-    train_dataset = yoloDataset(root=file_root,list_file=['my_yolo_dataset/train_label_bbox.txt'],train=True,transform = [transforms.ToTensor()] )
-    train_loader = DataLoader(train_dataset,batch_size=batch_size,shuffle=True)
+    train_dataset = yoloDataset(root=file_root, list_file=['my_yolo_dataset/train_label_bbox.txt'], train=True,transform = [transforms.ToTensor()] )
+    train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
 
-    test_dataset = yoloDataset(root=file_root,list_file=['my_yolo_dataset/val_label_bbox.txt'], train=False, transform = [transforms.ToTensor()] )
-    test_loader = DataLoader(test_dataset,batch_size=batch_size, shuffle=False)
+    test_dataset = yoloDataset(root=file_root, list_file=['my_yolo_dataset/val_label_bbox.txt'], train=False, transform = [transforms.ToTensor()] )
+    test_loader = DataLoader(test_dataset, batch_size=batch_size, shuffle=False)
 
     print('the dataset has %d images' % (len(train_dataset)))
     print('the batch_size is %d' % (batch_size))
     logfile = open('log.txt', 'w')
 
     num_iter = 0
-
     best_test_loss = np.inf
 
     for epoch in range(num_epochs):
