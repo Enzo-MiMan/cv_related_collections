@@ -1,0 +1,5 @@
+DEBUG:root:调试日志
+INFO:root:消息日志
+WARNING:root:警告日志
+ERROR:root:错误日志 
+CRITICAL:root:严重错误日志
