@@ -11,4 +11,3 @@ logging.info('消息日志')
 logging.warning('警告日志')
 logging.error('错误日志 ')
 logging.critical('严重错误日志')
-

@@ -21,4 +21,4 @@ checkpoint
 data
 VOCdevkit
 *__init__*
-
+*.log
