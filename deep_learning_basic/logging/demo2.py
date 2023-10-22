@@ -4,7 +4,7 @@ import logging
 # ============================ 1、实例化 logger ============================
 # 实例化一个记录器，使用默认记录器名称 'root'，并将日志级别设为 info
 logger = logging.getLogger("training.loss.log")
-logger.setLevel(logging.DEBUG)
+logger.setLevel(logging.INFO)
 
 
 # ============================ 2、定义Handler ============================
@@ -23,12 +23,11 @@ standard_formatter = logging.Formatter('%(asctime)s %(name)s [%(pathname)s line:
 # 创建一个简单版日志打印格式
 simple_formatter = logging.Formatter('%(levelname)s %(message)s')
 
-# ============================ 3、定义打过滤器 ============================
-
+# ============================ 4、定义打过滤器 ============================
+# 实例化一个过滤器
 flt = logging.Filter('training.accurate')
 
-
-# ============================ 4、绑定 ============================
+# ============================ 5、绑定关系 ============================
 # 让 consoleHandler 使用 标准版日志打印格式
 console_handler.setFormatter(standard_formatter)
 
@@ -39,6 +38,7 @@ file_handler.setFormatter(simple_formatter)
 logger.addHandler(console_handler)
 logger.addHandler(file_handler)
 
+# 将过滤器flt绑定到 console_handler
 console_handler.addFilter(flt)
 
 # ============================ 5、打印 ============================
