@@ -75,9 +75,11 @@ model = LeNet5(1, 10)
 model.to(device)
 wandb.watch(model, log='all', log_graph=True)
 
-lr = wandb.config.lr
+lr = wandb.config.learning_rate
 num_epochs = wandb.config.epochs
+
 momentum = 0.8
+wandb.config.update({'momentum':momentum})
 
 criterion = nn.CrossEntropyLoss()
 optimizer = optim.SGD(model.parameters(), lr=lr, momentum=momentum)
