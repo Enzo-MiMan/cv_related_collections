@@ -22,3 +22,4 @@ data
 VOCdevkit
 *__init__*
 *.log
+run*
