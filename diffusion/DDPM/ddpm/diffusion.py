@@ -160,7 +160,6 @@ class GaussianDiffusion(nn.Module):
         if w != self.img_size[1]:
             raise ValueError("image width does not match diffusion parameters")
 
-        torch.manual_seed(19)
         t = torch.randint(0, self.num_timesteps, (b,), device=device)
         return self.get_losses(x, t, y)
 
