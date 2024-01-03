@@ -14,6 +14,7 @@ def box_cxcywh_to_xyxy(x):
 
 
 def box_xyxy_to_cxcywh(x):
+    # 将bbox的坐标形式由 (xmin, ymin, xmax,ymax) 转换为 （center_x, center_y, width, height）
     x0, y0, x1, y1 = x.unbind(-1)
     b = [(x0 + x1) / 2, (y0 + y1) / 2,
          (x1 - x0), (y1 - y0)]

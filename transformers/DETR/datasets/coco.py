@@ -58,7 +58,7 @@ class ConvertCocoPolysToMask(object):
         image_id = torch.tensor([image_id])
 
         anno = target["annotations"]
-
+        # 只获取 非crowd的目标（ crowd 的目标是指： 人群、鸟群、等 类似的一群物体 ）
         anno = [obj for obj in anno if 'iscrowd' not in obj or obj['iscrowd'] == 0]
 
         boxes = [obj["bbox"] for obj in anno]

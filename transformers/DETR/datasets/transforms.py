@@ -14,42 +14,49 @@ from util.misc import interpolate
 
 
 def crop(image, target, region):
+    # 将图像按照region 指定的尺寸进行裁剪
     cropped_image = F.crop(image, *region)
 
     target = target.copy()
     i, j, h, w = region
 
-    # should we do something wrt the original size?
+    # 保存裁剪后的尺寸
     target["size"] = torch.tensor([h, w])
-
+    # 保存字段名，方便后面用于检查
     fields = ["labels", "area", "iscrowd"]
 
     if "boxes" in target:
         boxes = target["boxes"]
+        # 将裁剪后的图像宽高转换为 tensor
         max_size = torch.as_tensor([w, h], dtype=torch.float32)
+
+        # 调整bbox的坐标，将bbox的（xmin, ymin, xmax, ymax） 分别减去（left, top, left, top）
         cropped_boxes = boxes - torch.as_tensor([j, i, j, i])
-        cropped_boxes = torch.min(cropped_boxes.reshape(-1, 2, 2), max_size)
-        cropped_boxes = cropped_boxes.clamp(min=0)
+
+        # 处理边界情况，若bbox的坐标落在裁剪区域外，则将bbox的坐标进行截断
+        cropped_boxes = torch.min(cropped_boxes.reshape(-1, 2, 2), max_size)  # 处理bbox的xmax和ymax
+        cropped_boxes = cropped_boxes.clamp(min=0)   # 处理bbox的xmin和ymin
+
+        # 求出裁剪后的图像面积，代码等价于 ：area =（xmax - xmin） * （ymax - ymin）
         area = (cropped_boxes[:, 1, :] - cropped_boxes[:, 0, :]).prod(dim=1)
+
         target["boxes"] = cropped_boxes.reshape(-1, 4)
         target["area"] = area
         fields.append("boxes")
 
     if "masks" in target:
-        # FIXME should we update the area here if there are no boxes?
         target['masks'] = target['masks'][:, i:i + h, j:j + w]
         fields.append("masks")
 
-    # remove elements for which the boxes or masks that have zero area
     if "boxes" in target or "masks" in target:
-        # favor boxes selection when defining which elements to keep
-        # this is compatible with previous implementation
+        # 删除落在裁剪区域外的bbox，这部分bbox经过上面的处理之后: xmin=xmax， ymin=ymax
         if "boxes" in target:
             cropped_boxes = target['boxes'].reshape(-1, 2, 2)
             keep = torch.all(cropped_boxes[:, 1, :] > cropped_boxes[:, 0, :], dim=1)
         else:
             keep = target['masks'].flatten(1).any(1)
 
+        # 删除无效的bbox
         for field in fields:
             target[field] = target[field][keep]
 
@@ -160,8 +167,10 @@ class RandomSizeCrop(object):
         self.max_size = max_size
 
     def __call__(self, img: PIL.Image.Image, target: dict):
+        # 在指定范围内，分别随机出 高/宽尺寸，用于裁剪
         w = random.randint(self.min_size, min(img.width, self.max_size))
         h = random.randint(self.min_size, min(img.height, self.max_size))
+        # 返回的region为裁剪的尺寸，形为：(top, left, height, width)
         region = T.RandomCrop.get_params(img, [h, w])
         return crop(img, target, region)
 

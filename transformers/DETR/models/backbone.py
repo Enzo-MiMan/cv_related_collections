@@ -55,18 +55,26 @@ class FrozenBatchNorm2d(torch.nn.Module):
         return x * scale + bias
 
 
+
 class BackboneBase(nn.Module):
 
     def __init__(self, backbone: nn.Module, train_backbone: bool, num_channels: int, return_interm_layers: bool):
         super().__init__()
         for name, parameter in backbone.named_parameters():
+            # 如果不微调 backbone 的话（train_backbone=False），就将所有参数的 requires_grad 都置为 False
+            # 如果微调的话（train_backbone=True），只微调 'layer2' 、'layer3'、'layer4' 层的参数
             if not train_backbone or 'layer2' not in name and 'layer3' not in name and 'layer4' not in name:
                 parameter.requires_grad_(False)
+
         if return_interm_layers:
             return_layers = {"layer1": "0", "layer2": "1", "layer3": "2", "layer4": "3"}
         else:
             return_layers = {'layer4': "0"}
+        # 获取网络中间层的输出，对于目标检测任务，这里获取 layer4 层的输出
         self.body = IntermediateLayerGetter(backbone, return_layers=return_layers)
+
+        # 如果 backbone 为 resnet50，则 num_channels=2048 ；
+        # 如果 backbone 为 resnet18 或 resnet34 ，则 num_channels=512
         self.num_channels = num_channels
 
     def forward(self, tensor_list: NestedTensor):
@@ -87,7 +95,7 @@ class Backbone(BackboneBase):
                  return_interm_layers: bool,
                  dilation: bool):
         backbone = getattr(torchvision.models, name)(replace_stride_with_dilation=[False, False, dilation],
-                                                     weights=ResNet50_Weights.IMAGENET1K_V1, norm_layer=FrozenBatchNorm2d)
+                                                     weights=ResNet50_Weights.IMAGENET1K_V2, norm_layer=FrozenBatchNorm2d)
         num_channels = 512 if name in ('resnet18', 'resnet34') else 2048
         super().__init__(backbone, train_backbone, num_channels, return_interm_layers)
 
@@ -97,12 +105,13 @@ class Joiner(nn.Sequential):
         super().__init__(backbone, position_embedding)
 
     def forward(self, tensor_list: NestedTensor):
+        # self[0] 是 backbone
         xs = self[0](tensor_list)
         out: List[NestedTensor] = []
         pos = []
         for name, x in xs.items():
             out.append(x)
-            # position encoding
+            # self[1] 是 position_embedding
             pos.append(self[1](x).to(x.tensors.dtype))
 
         return out, pos
