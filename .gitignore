@@ -20,6 +20,5 @@ __pycache__
 checkpoint
 data
 VOCdevkit
-*__init__*
 *.log
 run*
