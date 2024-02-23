@@ -45,20 +45,20 @@
 - 数据集
   - MSCOCO数据集：https://www.bilibili.com/video/BV1GT411W7ji/
   - Pascal VOC：https://www.bilibili.com/video/BV18s4y1v7FN/
-- 日志记录（完整视频知识星球内可看）
+- 日志记录
 
   - logging
     - 1、基础使用、https://www.bilibili.com/video/BV1e34y1M7Ps/	
-    - 2、高级应用
-    - 3、配置文件
+    - 2、高级应用 （购买课件后查看）
+    - 3、配置文件 （购买课件后查看）
   - tensorboard / tensorboardX：
     - 1、记录训练数据指标：https://www.bilibili.com/video/BV18w411P75R/
-    - 2、模型可视化、图像可视化：
+    - 2、模型可视化、图像可视化 （购买课件后查看）
   - wandb 
-    - 1、安装与登录
-    - 2、基础使用与可视化
-    - 3、wandb.watch() 模型、参数、梯度的监控
-    - 4、wandb.Artifact() 版本管理、文件保存与下载
+    - 1、安装与登录 （购买课件后查看）
+    - 2、基础使用与可视化 （购买课件后查看）
+    - 3、wandb.watch() 模型、参数、梯度的监控 （购买课件后查看）
+    - 4、wandb.Artifact() 版本管理、文件保存与下载 （购买课件后查看）
 - 其他
   - 迁移学习：https://www.bilibili.com/video/BV1X8411f7q1/
   - IoU 与 NMS：https://www.bilibili.com/video/BV19L41187s4/
@@ -67,22 +67,28 @@
 
 
 
-----
+</br>
 
 
 
-## 2、transformer 与 DETR
+## 2、transformer
+
+  💰 为充电专属视频
 
 - self-attention：https://www.bilibili.com/video/BV1qo4y1F7Ep/
-
 - Multi-head attention：https://www.bilibili.com/video/BV1gV4y167rS/
-
 - MultiheadAttention 中的参数 key_padding_mask 与 attention_mask ： https://www.bilibili.com/video/BV1Xg4y127fd/
-
 - ViT：https://www.bilibili.com/video/BV1xm4y1b7Pw/
-- Positional Embedding 💰：https://www.bilibili.com/video/BV1z84y1R7t8/
-
 - Swin-transformer：https://www.bilibili.com/video/BV1Nz4y177aW/
+
+
+
+</br>
+
+
+
+# 3、DETR
+
 - DETR：https://www.bilibili.com/video/BV1Zo4y1A7FB/
   - 1、算法概述：https://www.bilibili.com/video/BV1Zo4y1A7FB/
   - 2、模型结构讲解：https://www.bilibili.com/video/BV1Gh4y127eZ/
@@ -105,17 +111,20 @@
   - 10、IoU-aware query selection 代码讲解 💰 ：https://www.bilibili.com/video/BV1Z94y1K744/
   - 11、decoder + MSDeformableAttention 💰：https://www.bilibili.com/video/BV1mZ4y1J7xA/
   - 12、损失函数 💰 ： https://www.bilibili.com/video/BV1uv421i7gC/
-- Attention Map 💰：https://www.bilibili.com/video/BV1jC411W7sC/
+- 相关知识
+
+  - 玩转resnet50：https://www.bilibili.com/video/BV1Ya4y1o7HP/
+  - Attention Map 💰：https://www.bilibili.com/video/BV1jC411W7sC/
+
+  - Positional Embedding 💰：https://www.bilibili.com/video/BV1z84y1R7t8/
 
 
 
-----
+</br>
 
 
 
 ## 3、其他算法
-
-- 玩转resnet50：https://www.bilibili.com/video/BV1Ya4y1o7HP/
 
 - FCN：https://www.bilibili.com/video/BV14g4y1g72Z/
 
