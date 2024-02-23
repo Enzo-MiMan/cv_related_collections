@@ -4,7 +4,7 @@
 
 ## 1、 深度学习基础
 
-配套课件，请加入知识星球获取 ： https://enzo-miman.github.io/#/zhishixingqiu
+配套课件 ： https://gf.bilibili.com/item/detail/1103548011
 
 - tensor相关
   - tenso r内部存储结构 ：https://www.bilibili.com/video/BV1NH4y177VL/
