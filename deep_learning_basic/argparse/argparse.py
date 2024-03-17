@@ -63,7 +63,5 @@ def create_argparser():
 
 
 if __name__ == '__main__':
-    parser = create_argparser()
-    args = parser.parse_args()
+    args = create_argparser().parse_args()
     print(args)
-
